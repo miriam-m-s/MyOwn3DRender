@@ -1,32 +1,41 @@
-# Prerequisites
-*.d
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
+# Build results
+[Bb]in/
+[Oo]bj/
+x64/
+Debug/
+Release/
+
+# Compiled object files
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
+*.o
 *.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
 *.exe
-*.out
-*.app
+*.dll
+*.pdb
+*.ilk
+*.idb
+*.ipdb
+
+# Generated files by GLAD or other generators (si quieres ignorarlos)
+glad.c
+
+# Other files to ignore
+*.log
+*.tlog
+*.lastbuildstate
+*.ipch
+
+# Git itself
+.gitignore
+
+# OS files
+Thumbs.db
+.DS_Store
