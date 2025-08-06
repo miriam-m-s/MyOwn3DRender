@@ -2,7 +2,14 @@
 #include <GLFW/glfw3.h>//maneja creacion de ventanas input...
 #include <iostream>
 #include "Shader.h"
-#include <direct.h> // o #include <unistd.h> en Linux/Mac
+#include <direct.h> 
+#include "stb_image.h"
+#include "Texture.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
 // ------------------------- Configuración -------------------------
 //se llama automáticamente cada vez que se redimensiona la ventana, y ajusta el área de dibujo (glViewport) para que coincida con el nuevo tamaño.
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -129,16 +136,21 @@ unsigned int createShaderProgram() {
 //EBO  stores indices that OpenGL uses to decide what vertices to draw
 void createTriangleData(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO) {
     float vertices[] = {
-       //position          //color
-       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f, // top right
-       0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,// bottom right
-      -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,// bottom left
-      -0.5f,  0.5f, 0.0f , 1.0f, 0.0f, 0.0f,  // top left 
+       //position          //color              //texture coords
+       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  // top right
+       0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,    1.0f, 0.0f,// bottom right
+      -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,    0.0f, 0.0f,// bottom left
+      -0.5f,  0.5f, 0.0f , 1.0f, 0.0f, 0.0f,    0.0f, 1.0f// top left 
     };
     unsigned int indices[] = {  // note that we start from 0!
         0, 1, 3,   // first triangle
         1, 2, 3    // second triangle
     };
+   
+       
+      
+       
+
    
     glGenBuffers(1, &EBO);
     //  Crear un Vertex Array Object (VAO)
@@ -162,10 +174,13 @@ void createTriangleData(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO)
   // - stride = 3 * sizeof(float) → separación entre vértices
   // - (void*)0 → desplazamiento inicial (inicio del array)
     // Atributo de posición
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -175,9 +190,7 @@ void createTriangleData(unsigned int& VAO, unsigned int& VBO, unsigned int& EBO)
 // ------------------------- Programa principal -------------------------
 
 int main() {
-    char cwd[1024];
-    _getcwd(cwd, sizeof(cwd));
-    std::cout << "Directorio actual: " << cwd << std::endl;
+
     if (!initGLFW()) return -1;
 
     GLFWwindow* window = createWindow(800, 600, "Ventana OpenGL");
@@ -189,17 +202,35 @@ int main() {
 
     unsigned int VAO, VBO,EBO;
     createTriangleData(VAO, VBO,EBO);
+   
+    Texture texture1("assets/textures/container.jpg");
+      
 
+    Texture texture2("assets/textures/ponch.png", GL_RGBA);
+       
    // unsigned int shaderProgram = createShaderProgram();
     Shader ourShader("Shaders/VertexShader.vs", "Shaders/VertexShader.fs");
     // Loop de renderizado
+    ourShader.use();
+    glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+    ourShader.setInt("texture2", 1);
+    
+   
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(trans));
 
         ourShader.use();
+        texture1.bind(GL_TEXTURE0);
+        texture2.bind(GL_TEXTURE1);
+
         glBindVertexArray(VAO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -215,5 +246,6 @@ int main() {
 
     glfwDestroyWindow(window);
     glfwTerminate();
+    
     return 0;
 }
