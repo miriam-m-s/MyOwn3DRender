@@ -3,6 +3,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include"Shader.h"
 #include"Texture.h"
+#include"Renderer.h"
+#include "Camera.h"
 #include <glm/gtc/type_ptr.hpp>
 // ------------------------- Geometría -------------------------
 //Concepto	Resumen claro
@@ -24,48 +26,53 @@ Cube::Cube(Shader* shader, Texture* texture1, Texture* texture2):sh1(shader),t1(
     //};
 
     float vertices[] = {
-        //pos                   //texcoords
-         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        // ----------- Cara trasera (z = -0.5) -----------
+        -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f, 0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f, 0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f, 0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
 
-         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-          0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-          0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-          0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        // ----------- Cara delantera (z = +0.5) -----------
+        -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
 
-         -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        // ----------- Cara izquierda (x = -0.5) -----------
+        -0.5f,  0.5f,  0.5f,   1.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,   1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,  -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,  -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,   1.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
 
-          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-          0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-          0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-          0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        // ----------- Cara derecha (x = +0.5) -----------
+         0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,   0.0f, 1.0f,   1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,   0.0f, 1.0f,   1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
 
-         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-          0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-          0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-          0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         // ----------- Cara inferior (y = -0.5) -----------
+         -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
+          0.5f, -0.5f, -0.5f,   1.0f, 1.0f,   0.0f, -1.0f, 0.0f,
+          0.5f, -0.5f,  0.5f,   1.0f, 0.0f,   0.0f, -1.0f, 0.0f,
+          0.5f, -0.5f,  0.5f,   1.0f, 0.0f,   0.0f, -1.0f, 0.0f,
+         -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   0.0f, -1.0f, 0.0f,
+         -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
 
-         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+         // ----------- Cara superior (y = +0.5) -----------
+         -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+          0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+          0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+          0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+         -0.5f,  0.5f,  0.5f,   0.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+         -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f, 1.0f, 0.0f
     };
 
 
@@ -93,13 +100,16 @@ Cube::Cube(Shader* shader, Texture* texture1, Texture* texture2):sh1(shader),t1(
   // - stride = 3 * sizeof(float) → separación entre vértices
   // - (void*)0 → desplazamiento inicial (inicio del array)
     // Atributo de posición
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     /* glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
      glEnableVertexAttribArray(1);*/
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -114,11 +124,13 @@ Cube::Cube(Shader* shader, Texture* texture1, Texture* texture2):sh1(shader),t1(
 
 void Cube::draw(const glm::mat4& view, const glm::mat4& projection)
 {
+   
     sh1->use();
     glUniformMatrix4fv(glGetUniformLocation(sh1->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(glGetUniformLocation(sh1->ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(glGetUniformLocation(sh1->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
+    sh1->setVec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
+    sh1->setVec3("viewPos", Renderer::Instance()->getCamera()->getPosition());
 
     t1->bind(GL_TEXTURE0);
     t2->bind(GL_TEXTURE1);

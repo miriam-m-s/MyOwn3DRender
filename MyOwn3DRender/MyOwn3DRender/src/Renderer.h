@@ -26,6 +26,7 @@ public:
 	
 	static void RenderLoop();
 	static void addRenderable(Renderable* obj);
+	Camera* getCamera();
 
 private:
 	/// <summary>

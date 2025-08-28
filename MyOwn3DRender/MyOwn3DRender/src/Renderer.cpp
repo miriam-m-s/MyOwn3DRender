@@ -61,6 +61,11 @@ void Renderer::addRenderable(Renderable* obj)
    renderInstance->renderObjects.push_back(obj);
 }
 
+Camera* Renderer::getCamera()
+{
+    return cam;
+}
+
 bool Renderer::initPrivate(int w, int h, const char* name)
 {
 

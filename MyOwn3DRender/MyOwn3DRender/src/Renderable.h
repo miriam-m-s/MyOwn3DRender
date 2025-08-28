@@ -21,6 +21,7 @@ public:
     Cube(Shader* shader,Texture* texture1,Texture* texture2);
     void draw(const glm::mat4& view, const glm::mat4& projection) override;
 private:
+    
     Texture* t1;
     Texture* t2;
     Shader* sh1;

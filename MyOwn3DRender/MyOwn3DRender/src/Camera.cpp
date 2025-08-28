@@ -46,7 +46,7 @@ void Camera::mouse_callback(GLFWwindow * window, double xpos, double ypos)
     }
 
     float offsetX =  cam->lastX- xpos;
-    float offsetY =  ypos- cam->lastY; // invertido para movimiento natural
+    float offsetY = cam->lastY- ypos ; // invertido para movimiento natural
     cam->lastX = xpos;
     cam->lastY = ypos;
 
