@@ -1,7 +1,8 @@
-#include "Renderer.h"
+﻿#include "Renderer.h"
 #include <glad/glad.h> //carga funciones de opengl
 #include <GLFW/glfw3.h>//maneja creacion de ventanas input...
 #include"Renderable.h"
+#include"Light.h"
 #include "MyOwn3DRender.cpp"
 #include"Camera.h"
 #include <iostream>
@@ -13,7 +14,7 @@ Renderer::Renderer()
     VAO(0), VBO(0), EBO(0), ourShader(nullptr),
     texture1(nullptr), texture2(nullptr)
 {
-    // Si quieres inicializar algo m�s, ponlo aqu�
+    // Si quieres inicializar algo más, ponlo aquí
 }
 Renderer* Renderer::Instance()
 {
@@ -38,8 +39,21 @@ void Renderer::releasePrivate()
         delete rObjects;
         rObjects = nullptr;
     }
+  
+    // --- 1️⃣ Borrar luces ---
+    if (renderInstance->dirLight) {
+        delete renderInstance->dirLight;
+        renderInstance->dirLight = nullptr;
+    }
+
+    for (auto& light : renderInstance->pointLights) {
+        delete light;
+        light = nullptr;
+    }
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    renderInstance->pointLights.clear();
     renderInstance.reset();
     renderInstance = nullptr;
 }
@@ -63,9 +77,15 @@ void Renderer::addRenderable(Renderable* obj)
 
 Camera* Renderer::getCamera()
 {
-    return cam;
+    return renderInstance->cam;
+}
+void Renderer::setDirectionalLight(DirectionalLight* light) {
+    renderInstance->dirLight = light;
 }
 
+void Renderer::addPointLight(PointLight* light) {
+    renderInstance->pointLights.push_back(light);
+}
 bool Renderer::initPrivate(int w, int h, const char* name)
 {
 
@@ -126,7 +146,30 @@ void Renderer::loopPrivate()
         texture1.bind(GL_TEXTURE0);
         texture2.bind(GL_TEXTURE1)*/;
         for (auto& rObjects : renderInstance->renderObjects) {
-            rObjects->draw(renderInstance->view, renderInstance->projection);
+            Shader* sh = rObjects->getShader();
+            sh->use();
+
+            // Luz direccional
+            if (renderInstance->dirLight)
+                renderInstance->dirLight->applyToShader(*sh);
+
+            // Luces puntuales
+            for (int i = 0; i < renderInstance->pointLights.size(); ++i)
+                renderInstance->pointLights[i]->applyToShader(*sh, i);
+
+            // Posición del observador
+            sh->setVec3("viewPos", cam->getPosition());
+
+            rObjects->draw(view, projection);
+            GLint loc = glGetUniformLocation(sh->ID, "dirLight.direction");
+            std::cout << "loc dirLight.direction = " << loc << std::endl;
+
+            loc = glGetUniformLocation(sh->ID, "dirLight.ambient");
+            std::cout << "loc dirLight.ambient = " << loc << std::endl;
+
+            // Comprobar primer pointLight
+            loc = glGetUniformLocation(sh->ID, "pointLights[0].position");
+            std::cout << "loc pointLights[0].position = " << loc << std::endl;
         }
         //glBindVertexArray(VAO);
         //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);

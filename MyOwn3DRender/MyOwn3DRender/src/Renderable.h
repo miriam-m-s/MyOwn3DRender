@@ -11,10 +11,14 @@ public:
 
     // Opcional: actualizar lógica/animación
     virtual void update(float deltaTime) {}
+    Shader* getShader() {
+        return sh1;
+    }
 protected:
     // Cada objeto puede tener su propia transform
     glm::mat4 model = glm::mat4(1.0f);
     unsigned int VAO, VBO, EBO;
+    Shader* sh1;
 };
 class Cube :public Renderable {
 public:    
@@ -24,5 +28,5 @@ private:
     
     Texture* t1;
     Texture* t2;
-    Shader* sh1;
+  
 };

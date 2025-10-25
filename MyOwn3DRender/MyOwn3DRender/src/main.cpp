@@ -3,6 +3,7 @@
 #include"Shader.h"
 #include "Renderable.h"
 #include <iostream>
+#include"Light.h"
 int main() {
 	if (!Renderer::Init(800, 600, "Ventana OpenGL")) {
 		std::cerr << "Error de inicializacion de renderer" << std::endl;
@@ -11,6 +12,22 @@ int main() {
 
     Texture texture1("assets/textures/container.jpg");
 
+    auto dir = new DirectionalLight(
+        glm::vec3(-0.2f, -1.0f, -0.3f),
+        glm::vec3(0.2f),
+        glm::vec3(0.8f),
+        glm::vec3(1.0f)
+    );
+    Renderer::Instance()->setDirectionalLight(dir);
+
+    auto point = new PointLight(
+        glm::vec3(0.7f, 0.2f, 2.0f),
+        glm::vec3(0.05f),
+        glm::vec3(1.0f, 0.0f, 0.0f),
+        glm::vec3(1.0f),
+        1.0f, 0.09f, 0.032f
+    );
+    Renderer::Instance()->addPointLight(point);
 
     Texture texture2("assets/textures/ponch.png", GL_RGBA);
 

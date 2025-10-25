@@ -7,6 +7,8 @@ class Shader;
 class Texture;
 class Camera;
 class Renderable;
+class DirectionalLight;
+class PointLight;
 class  Renderer {
 public:
 
@@ -27,6 +29,8 @@ public:
 	static void RenderLoop();
 	static void addRenderable(Renderable* obj);
 	Camera* getCamera();
+	void setDirectionalLight(DirectionalLight* light);
+	void addPointLight(PointLight* light);
 
 private:
 	/// <summary>
@@ -61,7 +65,8 @@ private:
 	Shader* ourShader;
 	Texture* texture1;
 	Texture* texture2;
-	
+	DirectionalLight* dirLight = nullptr;
+	std::vector<PointLight*> pointLights;
 	std::vector<Renderable*>renderObjects;
 
 	glm::mat4 view;

@@ -11,8 +11,9 @@
 //VBO	Guarda los datos de los vértices(ej.posiciones)
 //VAO	Guarda la configuración para interpretar los VBOs
 //EBO  stores indices that OpenGL uses to decide what vertices to draw
-Cube::Cube(Shader* shader, Texture* texture1, Texture* texture2):sh1(shader),t1(texture1),t2(texture2)
+Cube::Cube(Shader* shader, Texture* texture1, Texture* texture2):t1(texture1),t2(texture2)
 {
+    sh1 = shader;
     //float vertices[] = {
     //   //position          //color              //texture coords
     //   0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  // top right
@@ -125,19 +126,40 @@ Cube::Cube(Shader* shader, Texture* texture1, Texture* texture2):sh1(shader),t1(
 void Cube::draw(const glm::mat4& view, const glm::mat4& projection)
 {
    
-    sh1->use();
-    glUniformMatrix4fv(glGetUniformLocation(sh1->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(glGetUniformLocation(sh1->ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(glGetUniformLocation(sh1->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    sh1->setVec3("lightPos", glm::vec3(1.2f, 1.0f, 2.0f));
+    
+    // Envía las matrices de transformacións
+    sh1->setMat4("model", model);
+    sh1->setMat4("view", view);
+    sh1->setMat4("projection", projection);
+    // Luz direccional (como el sol)
+   sh1->setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+    sh1->setVec3("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+    sh1->setVec3("dirLight.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
+    sh1->setVec3("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    // Luces puntuales (hasta 4 en este ejemplo)
+    glm::vec3 lightPositions[] = {
+    glm::vec3(0.7f,  0.2f,  2.0f),
+    glm::vec3(2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3(0.0f,  0.0f, -3.0f)
+    };
+    for (int i = 0; i < 4; i++) {
+        std::string idx = "pointLights[" + std::to_string(i) + "]";
+        sh1->setVec3(idx + ".position", lightPositions[i]);
+        sh1->setVec3(idx + ".ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+        sh1->setVec3(idx + ".diffuse", glm::vec3(1.f, 0.f, 0.f));
+        sh1->setVec3(idx + ".specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        sh1->setFloat(idx + ".constant", 1.0f);
+        sh1->setFloat(idx + ".linear", 0.09f);
+        sh1->setFloat(idx + ".quadratic", 0.032f);
+    }
+
     sh1->setVec3("viewPos", Renderer::Instance()->getCamera()->getPosition());
 
     t1->bind(GL_TEXTURE0);
     t2->bind(GL_TEXTURE1);
 
     glBindVertexArray(VAO);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0); // opcional, por orden
 }
