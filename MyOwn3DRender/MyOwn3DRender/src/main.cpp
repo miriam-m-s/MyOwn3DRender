@@ -3,6 +3,7 @@
 #include"Shader.h"
 #include "Renderable.h"
 #include <iostream>
+#include<assimp/config.h>
 #include"Light.h"
 int main() {
 	if (!Renderer::Init(800, 600, "Ventana OpenGL")) {

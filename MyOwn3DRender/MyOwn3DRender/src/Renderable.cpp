@@ -129,8 +129,7 @@ void Cube::draw(const glm::mat4& view, const glm::mat4& projection)
     
     // Envía las matrices de transformacións
     sh1->setMat4("model", model);
-    sh1->setMat4("view", view);
-    sh1->setMat4("projection", projection);
+   
     // Luz direccional (como el sol)
    sh1->setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
     sh1->setVec3("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));

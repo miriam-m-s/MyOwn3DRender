@@ -159,7 +159,8 @@ void Renderer::loopPrivate()
 
             // Posición del observador
             sh->setVec3("viewPos", cam->getPosition());
-
+            sh->setMat4("view", view);
+            sh->setMat4("projection", projection);
             rObjects->draw(view, projection);
             GLint loc = glGetUniformLocation(sh->ID, "dirLight.direction");
             std::cout << "loc dirLight.direction = " << loc << std::endl;
