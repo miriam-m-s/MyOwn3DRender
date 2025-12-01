@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2025, assimp team
+Copyright (c) 2006-2021, assimp team
+
 
 All rights reserved.
 
@@ -118,27 +119,15 @@ public:
      * work for const references, so many function prototypes will
      * include const basic_formatter<T>& s but might still want to
      * modify the formatted string without the need for a full copy.*/
-    template <typename TToken, typename std::enable_if<!std::is_base_of<std::exception, TToken>::value>::type * = nullptr>
-    const basic_formatter &operator<<(const TToken &s) const {
+    template <typename TToken>
+    const basic_formatter& operator << (const TToken& s) const {
         underlying << s;
         return *this;
     }
 
-    template <typename TToken, typename std::enable_if<std::is_base_of<std::exception, TToken>::value>::type * = nullptr>
-    const basic_formatter &operator<<(const TToken &s) const {
-        underlying << s.what();
-        return *this;
-    }
-
-    template <typename TToken, typename std::enable_if<!std::is_base_of<std::exception, TToken>::value>::type * = nullptr>
-    basic_formatter &operator<<(const TToken &s) {
+    template <typename TToken>
+    basic_formatter& operator << (const TToken& s) {
         underlying << s;
-        return *this;
-    }
-
-    template <typename TToken, typename std::enable_if<std::is_base_of<std::exception, TToken>::value>::type * = nullptr>
-    basic_formatter &operator<<(const TToken &s) {
-        underlying << s.what();
         return *this;
     }
 
@@ -146,13 +135,13 @@ public:
     // comma operator overloaded as well, choose your preferred way.
     template <typename TToken>
     const basic_formatter& operator, (const TToken& s) const {
-        *this << s;
+        underlying << s;
         return *this;
     }
 
     template <typename TToken>
     basic_formatter& operator, (const TToken& s) {
-        *this << s;
+        underlying << s;
         return *this;
     }
 
@@ -160,7 +149,7 @@ public:
     // See https://sourceforge.net/projects/assimp/forums/forum/817654/topic/4372824
     template <typename TToken>
     basic_formatter& operator, (TToken& s) {
-        *this << s;
+        underlying << s;
         return *this;
     }
 

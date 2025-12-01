@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2025, assimp team
+Copyright (c) 2006-2021, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -98,6 +98,10 @@ public:
             DeadlyErrorBase(Assimp::Formatter::format(), std::forward<T>(args)...) {
         // empty
     }
+
+#if defined(_MSC_VER) && defined(__clang__)
+    DeadlyImportError(DeadlyImportError& other) = delete;
+#endif
 };
 
 // ---------------------------------------------------------------------------
@@ -110,6 +114,10 @@ public:
     template<typename... T>
     explicit DeadlyExportError(T&&... args) :
             DeadlyErrorBase(Assimp::Formatter::format(), std::forward<T>(args)...) {}
+
+#if defined(_MSC_VER) && defined(__clang__)
+    DeadlyExportError(DeadlyExportError& other) = delete;
+#endif
 };
 
 #ifdef _MSC_VER

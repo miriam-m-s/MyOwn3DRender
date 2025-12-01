@@ -1,10 +1,11 @@
-#include"Renderer.h"
-#include"Texture.h"
-#include"Shader.h"
+#include "Renderer.h"
+#include "Texture.h"
+#include "Shader.h"
 #include "Renderable.h"
 #include <iostream>
-#include<assimp/config.h>
-#include"Light.h"
+#include <assimp/config.h>
+#include "Light.h"
+
 int main() {
 	if (!Renderer::Init(800, 600, "Ventana OpenGL")) {
 		std::cerr << "Error de inicializacion de renderer" << std::endl;
