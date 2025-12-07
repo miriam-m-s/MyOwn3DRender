@@ -11,9 +11,11 @@ public:
     int width, height, nrChannels;
     GLenum format;
     bool flipVertically;
-    const std::string path;
+    std::string path;
+    std::string type;
     Texture(const std::string& path, GLenum format = GL_RGB, bool flipVertically = true);
-
+    Texture();
+   
     void bind(GLenum textureUnit = GL_TEXTURE0) const;
 };
 

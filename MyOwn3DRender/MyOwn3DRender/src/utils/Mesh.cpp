@@ -14,6 +14,7 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture
 
 void Mesh::Draw(Shader& shader)
 {
+        shader.setMat4("model", model);
     
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
@@ -29,7 +30,7 @@ void Mesh::Draw(Shader& shader)
                 number = std::to_string(specularNr++);
 
             shader.setInt(("material." + name + number).c_str(), i);
-            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+            glBindTexture(GL_TEXTURE_2D, textures[i].ID);
         }
         glActiveTexture(GL_TEXTURE0);
 

@@ -2,7 +2,9 @@
 #include<vector>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float2.hpp>
+#include"Texture.h"
 #include <string>
+#include <glm/glm.hpp>
 using namespace std;
 class Shader;
 struct Vertex {
@@ -10,11 +12,7 @@ struct Vertex {
     glm::vec3 Normal;
     glm::vec2 TexCoords;
 };
-struct Texture {
-    unsigned int id;
-    string type;
-    string path;  // we store the path of the texture to compare with other textures
-};
+
 class Mesh {
 public:
     // mesh data
@@ -27,6 +25,6 @@ public:
 private:
     //  render data
     unsigned int VAO, VBO, EBO;
-
+    glm::mat4 model = glm::mat4(1.0f);
     void setupMesh();
 };

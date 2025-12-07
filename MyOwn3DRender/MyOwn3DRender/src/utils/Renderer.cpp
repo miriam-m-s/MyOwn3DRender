@@ -1,7 +1,7 @@
 ﻿#include "Renderer.h"
 #include <glad/glad.h> //carga funciones de opengl
 #include <GLFW/glfw3.h>//maneja creacion de ventanas input...
-#include"Renderable.h"
+#include"Model.h"
 #include"Light.h"
 #include "MyOwn3DRender.cpp"
 #include"Camera.h"
@@ -14,7 +14,7 @@ Renderer::Renderer()
     VAO(0), VBO(0), EBO(0), ourShader(nullptr),
     texture1(nullptr), texture2(nullptr)
 {
-    // Si quieres inicializar algo más, ponlo aquí
+    
 }
 Renderer* Renderer::Instance()
 {
@@ -50,6 +50,10 @@ void Renderer::releasePrivate()
         delete light;
         light = nullptr;
     }
+    if (renderInstance->ourShader) {
+        delete renderInstance->ourShader;
+        renderInstance->ourShader = nullptr;
+    }
     glfwDestroyWindow(window);
     glfwTerminate();
 
@@ -70,7 +74,7 @@ void Renderer::RenderLoop()
     renderInstance->loopPrivate();
 }
 
-void Renderer::addRenderable(Renderable* obj)
+void Renderer::addRenderable(Model* obj)
 {
    renderInstance->renderObjects.push_back(obj);
 }
@@ -108,10 +112,20 @@ bool Renderer::initPrivate(int w, int h, const char* name)
         std::cerr << "Error al crear la camara" << std::endl;
         return false;
     }
-
+  
     if (!initGLAD()) return false;
     glViewport(0, 0, w, h);
     glEnable(GL_DEPTH_TEST);
+
+
+    renderInstance->ourShader = new Shader("Shaders/ModelVertex.vs", "Shaders/ModelFragment.fs");
+
+    if (!renderInstance->ourShader || renderInstance->ourShader->ID == 0)
+    {
+        std::cerr << "ERROR: Shader no cargado correctamente" << std::endl;
+        return false;
+    }
+
     return true;
 }
 bool Renderer::initGLAD() {
@@ -146,30 +160,32 @@ void Renderer::loopPrivate()
         texture1.bind(GL_TEXTURE0);
         texture2.bind(GL_TEXTURE1)*/;
         for (auto& rObjects : renderInstance->renderObjects) {
-            Shader* sh = rObjects->getShader();
-            sh->use();
+    
+            renderInstance->ourShader->use();
 
             // Luz direccional
             if (renderInstance->dirLight)
-                renderInstance->dirLight->applyToShader(*sh);
+                renderInstance->dirLight->applyToShader(*renderInstance->ourShader);
 
             // Luces puntuales
             for (int i = 0; i < renderInstance->pointLights.size(); ++i)
-                renderInstance->pointLights[i]->applyToShader(*sh, i);
+                renderInstance->pointLights[i]->applyToShader(*renderInstance->ourShader, i);
 
             // Posición del observador
-            sh->setVec3("viewPos", cam->getPosition());
-            sh->setMat4("view", view);
-            sh->setMat4("projection", projection);
-            rObjects->draw(view, projection);
-            GLint loc = glGetUniformLocation(sh->ID, "dirLight.direction");
+            renderInstance->ourShader->setVec3("viewPos", cam->getPosition());
+            renderInstance->ourShader->setMat4("view", view);
+            renderInstance->ourShader->setMat4("projection", projection);
+            renderInstance->ourShader->setVec3("viewPos", renderInstance->getCamera()->getPosition());
+
+            rObjects->Draw(*ourShader);
+            GLint loc = glGetUniformLocation(renderInstance->ourShader->ID, "dirLight.direction");
             std::cout << "loc dirLight.direction = " << loc << std::endl;
 
-            loc = glGetUniformLocation(sh->ID, "dirLight.ambient");
+            loc = glGetUniformLocation(renderInstance->ourShader->ID, "dirLight.ambient");
             std::cout << "loc dirLight.ambient = " << loc << std::endl;
 
             // Comprobar primer pointLight
-            loc = glGetUniformLocation(sh->ID, "pointLights[0].position");
+            loc = glGetUniformLocation(renderInstance->ourShader->ID, "pointLights[0].position");
             std::cout << "loc pointLights[0].position = " << loc << std::endl;
         }
         //glBindVertexArray(VAO);

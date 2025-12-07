@@ -2,6 +2,7 @@
 #include <string>
 #include"Model.h"
 #include "Mesh.h"
+#include"Texture.h"
 #include <assimp/material.h>
 
 using namespace std;

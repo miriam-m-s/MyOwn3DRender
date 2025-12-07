@@ -81,4 +81,8 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\ModelFragment.fs" />
+    <None Include="Shaders\ModelVertex.vs" />
+  </ItemGroup>
 </Project>

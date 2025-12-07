@@ -6,8 +6,9 @@ struct GLFWwindow;
 class Shader;
 class Texture;
 class Camera;
-class Renderable;
+
 class DirectionalLight;
+class Model;
 class PointLight;
 class  Renderer {
 public:
@@ -27,7 +28,7 @@ public:
 	static bool Init(int w, int h, const char* name);
 	
 	static void RenderLoop();
-	static void addRenderable(Renderable* obj);
+	static void addRenderable(Model* obj);
 	Camera* getCamera();
 	void setDirectionalLight(DirectionalLight* light);
 	void addPointLight(PointLight* light);
@@ -67,7 +68,7 @@ private:
 	Texture* texture2;
 	DirectionalLight* dirLight = nullptr;
 	std::vector<PointLight*> pointLights;
-	std::vector<Renderable*>renderObjects;
+	std::vector<Model*>renderObjects;
 
 	glm::mat4 view;
 	glm::mat4 projection;

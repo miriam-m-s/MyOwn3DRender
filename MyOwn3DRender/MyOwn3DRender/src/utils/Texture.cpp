@@ -29,6 +29,10 @@ Texture::Texture(const std::string& path2, GLenum format, bool flipVertically):p
     
 }
 
+Texture::Texture():format(GL_RGB), flipVertically(true)
+{
+}
+
 
 void Texture::bind(GLenum textureUnit) const
 {

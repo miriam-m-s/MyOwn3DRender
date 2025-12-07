@@ -1,18 +1,31 @@
 #include "Renderer.h"
 #include "Texture.h"
+#include"Model.h"
 #include "Shader.h"
 #include "Renderable.h"
 #include <iostream>
 #include <assimp/config.h>
 #include "Light.h"
+#include<string>
 
 int main() {
 	if (!Renderer::Init(800, 600, "Ventana OpenGL")) {
 		std::cerr << "Error de inicializacion de renderer" << std::endl;
 		return 1;
 	}
+    // unsigned int shaderProgram = createShaderProgram();
+    Shader ourShader("Shaders/ModelVertex.vs", "Shaders/ModelFragment.fs");
 
-    Texture texture1("assets/textures/container.jpg");
+
+    char destino[100];
+    std::string origen= "assets/backpack/backpack.obj";
+
+    strcpy_s(destino, sizeof(destino), origen.c_str());
+    Model* modelo = new Model(destino);
+   /* while (true) {
+        modelo->Draw(ourShader);
+    }
+    Texture texture1("assets/textures/container.jpg");*/
 
     auto dir = new DirectionalLight(
         glm::vec3(-0.2f, -1.0f, -0.3f),
@@ -31,12 +44,11 @@ int main() {
     );
     Renderer::Instance()->addPointLight(point);
 
-    Texture texture2("assets/textures/ponch.png", GL_RGBA);
+    //Texture texture2("assets/textures/ponch.png", GL_RGBA);
 
-    // unsigned int shaderProgram = createShaderProgram();
-    Shader ourShader("Shaders/VertexShader.vs", "Shaders/VertexShader.fs");
-    Cube* cube = new Cube(&ourShader, &texture1, &texture2);
-    Renderer::addRenderable(cube);
+ 
+    //Cube* cube = new Cube(&ourShader, &texture1, &texture2);
+    Renderer::addRenderable(modelo);
     // Loop de renderizado
 	Renderer::RenderLoop();
 	Renderer::Release();
