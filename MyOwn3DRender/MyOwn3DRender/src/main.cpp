@@ -18,7 +18,7 @@ int main() {
 
 
     char destino[100];
-    std::string origen= "assets/backpack/backpack.obj";
+    std::string origen= "assets/bee/bee.obj";
 
     strcpy_s(destino, sizeof(destino), origen.c_str());
     Model* modelo = new Model(destino);

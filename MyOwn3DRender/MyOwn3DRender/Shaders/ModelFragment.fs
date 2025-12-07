@@ -22,7 +22,7 @@ out vec4 FragColor;
 
 void main()
 {
-    vec2 texCoordsFlipped = vec2(TexCoord.x, 1.0 - TexCoord.y);
+    vec2 texCoordsFlipped = vec2(TexCoord.x, TexCoord.y);
     // --- Difuse texture ---
     vec3 diffuseColor = texture(material.texture_diffuse, texCoordsFlipped).rgb;
     FragColor = vec4(diffuseColor, 1.0);
