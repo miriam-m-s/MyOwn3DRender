@@ -179,7 +179,7 @@ void Renderer::loopPrivate()
             // Luz direccional (como el sol)
             renderInstance->ourShader->setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
             renderInstance->ourShader->setVec3("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-            renderInstance->ourShader->setVec3("dirLight.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
+            renderInstance->ourShader->setVec3("dirLight.diffuse", glm::vec3(0.f, 0.f, 1.f));
             renderInstance->ourShader->setVec3("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
             // Luces puntuales (hasta 4 en este ejemplo)
             glm::vec3 lightPositions[] = {
