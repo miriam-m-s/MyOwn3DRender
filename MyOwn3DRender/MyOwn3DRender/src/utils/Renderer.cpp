@@ -176,7 +176,28 @@ void Renderer::loopPrivate()
             renderInstance->ourShader->setMat4("view", view);
             renderInstance->ourShader->setMat4("projection", projection);
             renderInstance->ourShader->setVec3("viewPos", renderInstance->getCamera()->getPosition());
-
+            // Luz direccional (como el sol)
+            renderInstance->ourShader->setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+            renderInstance->ourShader->setVec3("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+            renderInstance->ourShader->setVec3("dirLight.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
+            renderInstance->ourShader->setVec3("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+            // Luces puntuales (hasta 4 en este ejemplo)
+            glm::vec3 lightPositions[] = {
+            glm::vec3(0.7f,  0.2f,  2.0f),
+            glm::vec3(2.3f, -3.3f, -4.0f),
+            glm::vec3(-4.0f,  2.0f, -12.0f),
+            glm::vec3(0.0f,  0.0f, -3.0f)
+            };
+            for (int i = 0; i < 4; i++) {
+                std::string idx = "pointLights[" + std::to_string(i) + "]";
+                renderInstance->ourShader->setVec3(idx + ".position", lightPositions[i]);
+                renderInstance->ourShader->setVec3(idx + ".ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+                renderInstance->ourShader->setVec3(idx + ".diffuse", glm::vec3(1.f, 0.f, 0.f));
+                renderInstance->ourShader->setVec3(idx + ".specular", glm::vec3(1.0f, 1.0f, 1.0f));
+                renderInstance->ourShader->setFloat(idx + ".constant", 1.0f);
+                renderInstance->ourShader->setFloat(idx + ".linear", 0.09f);
+                renderInstance->ourShader->setFloat(idx + ".quadratic", 0.032f);
+            }
             rObjects->Draw(*ourShader);
             GLint loc = glGetUniformLocation(renderInstance->ourShader->ID, "dirLight.direction");
             std::cout << "loc dirLight.direction = " << loc << std::endl;
