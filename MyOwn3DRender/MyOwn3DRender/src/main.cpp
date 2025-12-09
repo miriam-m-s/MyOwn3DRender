@@ -29,20 +29,28 @@ int main() {
 
     auto dir = new DirectionalLight(
         glm::vec3(-0.2f, -1.0f, -0.3f),
-        glm::vec3(0.2f),
+        glm::vec3(1.0,0.9,0.8),
         glm::vec3(0.8f),
         glm::vec3(1.0f)
     );
     Renderer::Instance()->setDirectionalLight(dir);
 
     auto point = new PointLight(
-        glm::vec3(0.7f, 0.2f, 2.0f),
+        glm::vec3(1.5f, 1.4f, 3.0f),
         glm::vec3(0.05f),
-        glm::vec3(1.0f, 0.0f, 0.0f),
+        glm::vec3(1.0f, 0.2f, 1.0f),
         glm::vec3(1.0f),
-        1.0f, 0.09f, 0.032f
+       1.f, 0.14f, 0.07f
     );
     Renderer::Instance()->addPointLight(point);
+    auto point2 = new PointLight(
+        glm::vec3(-5.f, 0.7f, -1.0f),
+        glm::vec3(0.05f),
+        glm::vec3(0.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f),
+        1.f, 0.14f, 0.07f
+    );
+    Renderer::Instance()->addPointLight(point2);
 
     //Texture texture2("assets/textures/ponch.png", GL_RGBA);
 

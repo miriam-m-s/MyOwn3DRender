@@ -148,17 +148,10 @@ void Renderer::loopPrivate()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-        
         renderInstance->view = glm::lookAt(cam->getPosition(), cam->getPosition() + cam->getFront(), cam->getUp());
         renderInstance->projection = glm::perspective(glm::radians(cam->getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
 
-        /*glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-        ourShader.use();
-        texture1.bind(GL_TEXTURE0);
-        texture2.bind(GL_TEXTURE1)*/;
+     
         for (auto& rObjects : renderInstance->renderObjects) {
     
             renderInstance->ourShader->use();
@@ -166,8 +159,10 @@ void Renderer::loopPrivate()
             // Luz direccional
             if (renderInstance->dirLight)
                 renderInstance->dirLight->applyToShader(*renderInstance->ourShader);
-
+       
             // Luces puntuales
+            renderInstance->ourShader->setInt("nPointLights", renderInstance->pointLights.size());
+           
             for (int i = 0; i < renderInstance->pointLights.size(); ++i)
                 renderInstance->pointLights[i]->applyToShader(*renderInstance->ourShader, i);
 
@@ -176,45 +171,10 @@ void Renderer::loopPrivate()
             renderInstance->ourShader->setMat4("view", view);
             renderInstance->ourShader->setMat4("projection", projection);
             renderInstance->ourShader->setVec3("viewPos", renderInstance->getCamera()->getPosition());
-            // Luz direccional (como el sol)
-            renderInstance->ourShader->setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
-            renderInstance->ourShader->setVec3("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-            renderInstance->ourShader->setVec3("dirLight.diffuse", glm::vec3(0.f, 0.f, 1.f));
-            renderInstance->ourShader->setVec3("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-            // Luces puntuales (hasta 4 en este ejemplo)
-            glm::vec3 lightPositions[] = {
-            glm::vec3(0.7f,  0.2f,  2.0f),
-            glm::vec3(2.3f, -3.3f, -4.0f),
-            glm::vec3(-4.0f,  2.0f, -12.0f),
-            glm::vec3(0.0f,  0.0f, -3.0f)
-            };
-            for (int i = 0; i < 4; i++) {
-                std::string idx = "pointLights[" + std::to_string(i) + "]";
-                renderInstance->ourShader->setVec3(idx + ".position", lightPositions[i]);
-                renderInstance->ourShader->setVec3(idx + ".ambient", glm::vec3(0.05f, 0.05f, 0.05f));
-                renderInstance->ourShader->setVec3(idx + ".diffuse", glm::vec3(1.f, 0.f, 0.f));
-                renderInstance->ourShader->setVec3(idx + ".specular", glm::vec3(1.0f, 1.0f, 1.0f));
-                renderInstance->ourShader->setFloat(idx + ".constant", 1.0f);
-                renderInstance->ourShader->setFloat(idx + ".linear", 0.09f);
-                renderInstance->ourShader->setFloat(idx + ".quadratic", 0.032f);
-            }
-            rObjects->Draw(*ourShader);
-            GLint loc = glGetUniformLocation(renderInstance->ourShader->ID, "dirLight.direction");
-            std::cout << "loc dirLight.direction = " << loc << std::endl;
-
-            loc = glGetUniformLocation(renderInstance->ourShader->ID, "dirLight.ambient");
-            std::cout << "loc dirLight.ambient = " << loc << std::endl;
-
-            // Comprobar primer pointLight
-            loc = glGetUniformLocation(renderInstance->ourShader->ID, "pointLights[0].position");
-            std::cout << "loc pointLights[0].position = " << loc << std::endl;
+        
+            rObjects->Draw(*renderInstance->ourShader);
+            
         }
-        //glBindVertexArray(VAO);
-        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-       // glDrawArrays(GL_TRIANGLES, 0, 36);
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
