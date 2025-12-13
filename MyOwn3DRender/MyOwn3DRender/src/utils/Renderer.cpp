@@ -140,8 +140,10 @@ bool Renderer::initPrivate(int w, int h, const char* name)
         renderInstance->SHADOW_WIDTH, renderInstance->SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     glBindFramebuffer(GL_FRAMEBUFFER, renderInstance->depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, renderInstance->depthMap, 0);
@@ -172,7 +174,7 @@ void Renderer::loopPrivate()
        
         // 1️⃣ Primera pasada — render al depth map
        
-
+        glCullFace(GL_FRONT);
         renderInstance->depthShader->use();
         renderInstance->depthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
@@ -185,12 +187,14 @@ void Renderer::loopPrivate()
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glCullFace(GL_BACK);
         glViewport(0, 0, renderInstance->width, renderInstance->height);
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         renderInstance->view = glm::lookAt(cam->getPosition(), cam->getPosition() + cam->getFront(), cam->getUp());
         renderInstance->projection = glm::perspective(glm::radians(cam->getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
+
 
      
         for (auto& rObjects : renderInstance->renderObjects) {
@@ -212,8 +216,10 @@ void Renderer::loopPrivate()
             renderInstance->ourShader->setMat4("view", renderInstance->view);
             renderInstance->ourShader->setMat4("projection", renderInstance->projection);
             renderInstance->ourShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-            
-        
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, renderInstance->depthMap);
+       
+            renderInstance->ourShader->setInt("shadowMap", 1);
             rObjects->Draw(*renderInstance->ourShader);
             
         }
@@ -235,7 +241,7 @@ bool Renderer::initGLFW() {
 glm::mat4 Renderer::computeLightSpaceMatrix()
 {
     glm::vec3 lightDir = renderInstance->dirLight->getDirection();
-    float near_plane = 1.0f, far_plane = 7.5f;
+    float near_plane = 1.0f, far_plane = 50.f;
     glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
     glm::mat4 lightView = glm::lookAt(-lightDir * 20.0f, glm::vec3(0.0f), glm::vec3(0, 1, 0));
 

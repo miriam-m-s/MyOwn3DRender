@@ -1,12 +1,7 @@
 ﻿#version 330 core
-
+#define NR_POINT_LIGHTS 4  
 struct Material {
     sampler2D texture_diffuse;
-    sampler2D texture_diffuse1;
-    sampler2D texture_diffuse2;
-    sampler2D texture_specular;
-    sampler2D texture_specular1;
-    float shininess;
 };
 
 struct DirLight {
@@ -29,21 +24,24 @@ struct PointLight {
     float quadratic;
 };
 
-// ----- Uniforms -----
-#define NR_POINT_LIGHTS 4  // puedes cambiarlo según tus necesidades
 
-uniform DirLight dirLight;
-uniform PointLight pointLights[NR_POINT_LIGHTS];
-uniform Material material;
 
+//in
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoord;
+in vec4 FragPosLightSpace;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform int nPointLights=0;
+uniform DirLight dirLight;
+uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform Material material;
+uniform sampler2D shadowMap;
+
 out vec4 FragColor;
+
 float remap(float value, float inMin, float inMax, float outMin, float outMax) {
     return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
 }
@@ -102,8 +100,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
           float rim=step(0.6,fresnel);
           
           vec3 rimColor = vec3(1.0, 1.0, 1.0); // puedes cambiarlo
-       
-        return color+(rimColor * rim * 0.8);
+      // +(rimColor * rim * 0.8)
+        return color;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
@@ -136,7 +134,36 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
     return diffuse;
 }
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // Transformar a coordenadas NDC
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5; // mapear a [0,1]
 
+    // Obtener profundidad actual y bias
+    float currentDepth = projCoords.z;
+    vec3 lightDir = normalize(-dirLight.direction);
+    float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.005);
+
+    // PCF 3x3 para suavizar bordes
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += (currentDepth - bias > pcfDepth) ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
+
+    // Evitar sombras fuera del far plane
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+
+    return step(0.9,shadow)*0.5;
+}
 void main()
 {
     vec3 norm = normalize(Normal);
@@ -147,18 +174,9 @@ void main()
     for (int i = 0; i < nPointLights; i++)
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
 
-    //// --- Aplica cel shading ---
-    //float intensity = length(result); // luz total
-
-    //// Cuantización (3 niveles)
-    //float toonStep = 0.5;
-    //float levels = floor(intensity / toonStep);
-    //float quantized = levels * toonStep;
-
-    //// Reasignar la luz cuantizada
-    //result = normalize(result) * quantized;
+  
 
     vec3 diffuseColor = texture(material.texture_diffuse, TexCoord).rgb;
-  
-    FragColor = vec4( result*diffuseColor, 1.0);
+    float shadow = ShadowCalculation(FragPosLightSpace); 
+   FragColor = vec4(diffuseColor*(1-shadow)*result, 1.0);
 }

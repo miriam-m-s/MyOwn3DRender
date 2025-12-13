@@ -17,11 +17,10 @@ int main() {
     Shader ourShader("Shaders/ModelVertex.vs", "Shaders/ModelFragment.fs");
 
 
-    char destino[100];
-    std::string origen= "assets/bee/bee.obj";
-
-    strcpy_s(destino, sizeof(destino), origen.c_str());
-    Model* modelo = new Model(destino);
+   
+    Model* modelo = new Model("assets/bee/bee.obj");
+    Model* plano = new Model("assets/plano/plano.obj");
+    Model* plano1 = new Model("assets/plano/plano1.obj");
    /* while (true) {
         modelo->Draw(ourShader);
     }
@@ -57,6 +56,8 @@ int main() {
  
     //Cube* cube = new Cube(&ourShader, &texture1, &texture2);
     Renderer::addRenderable(modelo);
+    Renderer::addRenderable(plano);
+    Renderer::addRenderable(plano1);
     // Loop de renderizado
 	Renderer::RenderLoop();
 	Renderer::Release();
