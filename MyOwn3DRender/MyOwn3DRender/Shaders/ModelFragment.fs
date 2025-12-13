@@ -47,6 +47,32 @@ out vec4 FragColor;
 float remap(float value, float inMin, float inMax, float outMin, float outMax) {
     return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
 }
+float ToonQuantize(float v,float dark)
+{
+    float t1 = step(0.25, v);
+    float t2 = step(0.35, v);
+    float t3 = step(0.90, v);
+
+    return
+        0.3 * (1.0 - t1) +      // zona oscura
+        0.55 * (t1 - t2) +       // tono sombra
+        0.8 * (t2 - t3) +       // tono medio
+        1.0 * t3;               // luz fuerte
+}
+float ToonQuantize2(float v,float dark)
+{
+    float t1 = step(0.25, v);
+    float t2 = step(0.35, v);
+    float t3 = step(0.90, v);
+
+    return
+        0.3 * (1.0 - t1) +      // zona oscura
+        0.5 * (t1 - t2) +       // tono sombra
+        0.7 * (t2 - t3) +       // tono medio
+        1.00 * t3;               // luz fuerte
+}
+
+ 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
          vec3 lightDir = normalize(-light.direction);
@@ -56,23 +82,28 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     
         // Niveles de cel shading
       
-        float sombra = smoothstep(0.32, 0.35, diff);
-        float luz    = smoothstep(0.95, 0.98, diff);
-    
-        // Combinamos niveles:
-        // - Si diff < 0.33 → 0
-        // - Entre 0.33 y 0.75 → 0.5
-        // - > 0.75 → 1.0
-        float toon =
-              0.5 * (1.0 - sombra) +       // sombra
-              1 * (sombra - luz) +       // medio tono
-              1.5 * luz;                   // luz fuerte
-    
+        float sombra = step(0.33,  diff);
+        float luz    = step(0.95, diff);
+       
+         // Especular
+         vec3 reflectDir = reflect(-lightDir, normal);
+         float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+         spec=step(0.8,spec)*0.5;
+
+
+        float toon = ToonQuantize(diff,0.1);
         vec3 color =
             light.ambient *
             light.diffuse * toon;
-    
-        return color;
+        
+        // ---- Rim Light Fresnel ----
+          float fresnel = 1.0 - max(dot(normal, viewDir), 0.0);
+          fresnel*=diff;
+          float rim=step(0.6,fresnel);
+          
+          vec3 rimColor = vec3(1.0, 1.0, 1.0); // puedes cambiarlo
+       
+        return color+(rimColor * rim * 0.8);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
@@ -95,15 +126,11 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
     // Aplica atenuación
     diff *= attenuation;
+   
+    
 
-    // Toon smoothing
-    float sombra = smoothstep(0.30, 0.35, diff);
-    float luz    = smoothstep(0.95, 1.0, diff);
-
-    float toon =
-               0.0 * (1.0 - sombra) +      // sombra
-               0.5 * (sombra - luz) +      // medio tono
-               1.0 * luz;                  // luz fuerte
+    float toon =ToonQuantize2(diff,0.2);
+             
 
     vec3 diffuse = light.diffuse * toon;
 
@@ -132,6 +159,6 @@ void main()
     //result = normalize(result) * quantized;
 
     vec3 diffuseColor = texture(material.texture_diffuse, TexCoord).rgb;
-
+  
     FragColor = vec4( result*diffuseColor, 1.0);
 }

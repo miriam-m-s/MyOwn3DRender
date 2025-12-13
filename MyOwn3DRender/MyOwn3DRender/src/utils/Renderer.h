@@ -43,6 +43,7 @@ private:
 	void processInput(GLFWwindow* window);
 	void loopPrivate();
 	bool initGLFW();
+	glm::mat4 computeLightSpaceMatrix();
 	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	GLFWwindow* createWindow(int width, int height, const char* title);
 	/// <summary>
@@ -72,5 +73,13 @@ private:
 
 	glm::mat4 view;
 	glm::mat4 projection;
+
+	unsigned int depthMapFBO;
+	unsigned int depthMap;
+
+	unsigned int SHADOW_WIDTH = 2048;
+	unsigned int SHADOW_HEIGHT = 2048;
+
+	Shader* depthShader;
 
 };

@@ -84,5 +84,7 @@
   <ItemGroup>
     <None Include="Shaders\ModelFragment.fs" />
     <None Include="Shaders\ModelVertex.vs" />
+    <None Include="Shaders\ShadowDepth.fs" />
+    <None Include="Shaders\ShadowDepth.vs" />
   </ItemGroup>
 </Project>

@@ -29,14 +29,14 @@ int main() {
 
     auto dir = new DirectionalLight(
         glm::vec3(-0.2f, -1.0f, -0.3f),
-        glm::vec3(1.0,0.9,0.8),
+        glm::vec3(1,0.9,0.6),
         glm::vec3(0.8f),
         glm::vec3(1.0f)
     );
     Renderer::Instance()->setDirectionalLight(dir);
 
     auto point = new PointLight(
-        glm::vec3(1.5f, 1.4f, 3.0f),
+        glm::vec3(2.f, 1.4f, 3.0f),
         glm::vec3(0.05f),
         glm::vec3(1.0f, 0.2f, 1.0f),
         glm::vec3(1.0f),
@@ -44,9 +44,9 @@ int main() {
     );
     Renderer::Instance()->addPointLight(point);
     auto point2 = new PointLight(
-        glm::vec3(-5.f, 0.7f, -1.0f),
+        glm::vec3(-2.f, 0.7f, -2.0f),
         glm::vec3(0.05f),
-        glm::vec3(0.0f, 1.0f, 1.0f),
+        glm::vec3(0.0f, 0.7f, 1.0f),
         glm::vec3(1.0f),
         1.f, 0.14f, 0.07f
     );

@@ -54,6 +54,10 @@ void Renderer::releasePrivate()
         delete renderInstance->ourShader;
         renderInstance->ourShader = nullptr;
     }
+    if (renderInstance->depthShader) {
+        delete renderInstance->depthShader;
+        renderInstance->depthShader = nullptr;
+    }
     glfwDestroyWindow(window);
     glfwTerminate();
 
@@ -126,6 +130,24 @@ bool Renderer::initPrivate(int w, int h, const char* name)
         return false;
     }
 
+    renderInstance->depthShader=new Shader("Shaders/ShadowDepth.vs", "Shaders/ShadowDepth.fs");
+    glGenFramebuffers(1, &renderInstance->depthMapFBO);
+
+
+    glGenTextures(1, &renderInstance->depthMap);
+    glBindTexture(GL_TEXTURE_2D, renderInstance->depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+        renderInstance->SHADOW_WIDTH, renderInstance->SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, renderInstance->depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, renderInstance->depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
 }
 bool Renderer::initGLAD() {
@@ -142,10 +164,29 @@ void Renderer:: processInput(GLFWwindow* window) {
 }
 void Renderer::loopPrivate()
 {
+
+    
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
+        glm::mat4 lightSpaceMatrix = computeLightSpaceMatrix();
+       
+        // 1️⃣ Primera pasada — render al depth map
+       
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        renderInstance->depthShader->use();
+        renderInstance->depthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        for (auto& rObjects : renderInstance->renderObjects)
+        {
+            renderInstance->depthShader->setMat4("model", glm::mat4(1.0f));
+            rObjects->Draw(*renderInstance->depthShader);
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, renderInstance->width, renderInstance->height);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         renderInstance->view = glm::lookAt(cam->getPosition(), cam->getPosition() + cam->getFront(), cam->getUp());
@@ -167,10 +208,11 @@ void Renderer::loopPrivate()
                 renderInstance->pointLights[i]->applyToShader(*renderInstance->ourShader, i);
 
             // Posición del observador
-            renderInstance->ourShader->setVec3("viewPos", cam->getPosition());
-            renderInstance->ourShader->setMat4("view", view);
-            renderInstance->ourShader->setMat4("projection", projection);
-            renderInstance->ourShader->setVec3("viewPos", renderInstance->getCamera()->getPosition());
+            renderInstance->ourShader->setVec3("viewPos", renderInstance->cam->getPosition());
+            renderInstance->ourShader->setMat4("view", renderInstance->view);
+            renderInstance->ourShader->setMat4("projection", renderInstance->projection);
+            renderInstance->ourShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+            
         
             rObjects->Draw(*renderInstance->ourShader);
             
@@ -189,6 +231,15 @@ bool Renderer::initGLFW() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     return true;
+}
+glm::mat4 Renderer::computeLightSpaceMatrix()
+{
+    glm::vec3 lightDir = renderInstance->dirLight->getDirection();
+    float near_plane = 1.0f, far_plane = 7.5f;
+    glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    glm::mat4 lightView = glm::lookAt(-lightDir * 20.0f, glm::vec3(0.0f), glm::vec3(0, 1, 0));
+
+    return lightProjection * lightView;
 }
 void Renderer::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
