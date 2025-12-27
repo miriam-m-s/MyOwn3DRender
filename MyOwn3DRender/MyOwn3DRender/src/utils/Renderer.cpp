@@ -164,6 +164,32 @@ void Renderer:: processInput(GLFWwindow* window) {
         glfwSetWindowShouldClose(window, true);
     cam->processInput(window);
 }
+void Renderer::ApplyFixedViewport()
+{
+    float targetAspect = (float)LOGICAL_WIDTH / LOGICAL_HEIGHT;
+    float windowAspect = (float)width / height;
+
+    int vpWidth, vpHeight;
+    int vpX = 0, vpY = 0;
+
+    if (windowAspect > targetAspect)
+    {
+        // Ventana más ancha → barras laterales
+        vpHeight = height;
+        vpWidth = int(height * targetAspect);
+        vpX = (width - vpWidth) / 2;
+    }
+    else
+    {
+        // Ventana más alta → barras arriba/abajo
+        vpWidth = width;
+        vpHeight = int(width / targetAspect);
+        vpY = (height - vpHeight) / 2;
+    }
+
+    glViewport(vpX, vpY, vpWidth, vpHeight);
+}
+
 void Renderer::loopPrivate()
 {
 
@@ -174,10 +200,18 @@ void Renderer::loopPrivate()
        
         // 1️⃣ Primera pasada — render al depth map
        
+        int prevViewport[4];
+        glGetIntegerv(GL_VIEWPORT, prevViewport);
+
+        // --- SHADOW PASS ---
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+
         glCullFace(GL_FRONT);
         renderInstance->depthShader->use();
         renderInstance->depthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+  
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
         for (auto& rObjects : renderInstance->renderObjects)
@@ -188,12 +222,21 @@ void Renderer::loopPrivate()
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glCullFace(GL_BACK);
+        /*glViewport(prevViewport[0], prevViewport[1],
+            prevViewport[2], prevViewport[3]);
+        ApplyFixedViewport();*/
         glViewport(0, 0, renderInstance->width, renderInstance->height);
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         renderInstance->view = glm::lookAt(cam->getPosition(), cam->getPosition() + cam->getFront(), cam->getUp());
-        renderInstance->projection = glm::perspective(glm::radians(cam->getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
+      
+        float aspect = static_cast<float>(renderInstance->width) / static_cast<float>(renderInstance->height);
+        renderInstance->projection =
+            glm::perspective(glm::radians(cam->getFov()),
+                aspect,
+                0.1f,
+                100.0f);
 
 
      
@@ -248,10 +291,19 @@ glm::mat4 Renderer::computeLightSpaceMatrix()
     return lightProjection * lightView;
 }
 void Renderer::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+     
+  
+
+    renderInstance->width = width;
+    renderInstance->height = height;
+
     glViewport(0, 0, width, height);
+    std::cout << "reescalando" << std::endl;
 }
 //creacion de la ventana
 GLFWwindow* Renderer::createWindow(int width, int height, const char* title) {
+   
+
     GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!window) {
         const char* description;
@@ -260,6 +312,7 @@ GLFWwindow* Renderer::createWindow(int width, int height, const char* title) {
         glfwTerminate();
         return nullptr;
     }
+    glfwSetWindowUserPointer(window, this);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     return window;

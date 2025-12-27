@@ -52,10 +52,10 @@ float ToonQuantize(float v,float dark)
     float t3 = step(0.90, v);
 
     return
-        0.3 * (1.0 - t1) +      // zona oscura
-        0.55 * (t1 - t2) +       // tono sombra
-        0.8 * (t2 - t3) +       // tono medio
-        1.0 * t3;               // luz fuerte
+        0.8 * (1.0 - t1) +      // zona oscura
+        1.0 * (t1 - t2) +       // tono sombra
+        1.2 * (t2 - t3) +       // tono medio
+        1.4 * t3;               // luz fuerte
 }
 float ToonQuantize2(float v,float dark)
 {
@@ -101,7 +101,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
           
           vec3 rimColor = vec3(1.0, 1.0, 1.0); // puedes cambiarlo
       // 
-        return color +(rimColor * rim * 0.8);
+        return( color +(rimColor * rim * 0.8))*light.specular.x;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
@@ -178,5 +178,6 @@ void main()
 
     vec3 diffuseColor = texture(material.texture_diffuse, TexCoord).rgb;
     float shadow = ShadowCalculation(FragPosLightSpace); 
+   
    FragColor = vec4(diffuseColor*(1-shadow)*result, 1.0);
 }
