@@ -77,8 +77,8 @@ private:
 	unsigned int depthMapFBO;
 	unsigned int depthMap;
 
-	unsigned int SHADOW_WIDTH = 2048;
-	unsigned int SHADOW_HEIGHT = 2048;
+	unsigned int SHADOW_WIDTH = 2048*2;
+	unsigned int SHADOW_HEIGHT = 2048*2;
 
 	Shader* depthShader;
 

@@ -30,7 +30,7 @@ DirectionalLight::DirectionalLight(const glm::vec3& dir,
     const glm::vec3& diff,
     const glm::vec3& spec)
 {
-    direction = dir;
+    direction = glm::normalize(dir);
     ambient = amb;
     diffuse = diff;
     specular = spec;

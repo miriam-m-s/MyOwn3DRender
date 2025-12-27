@@ -18,9 +18,10 @@ int main() {
 
 
    
-    Model* modelo = new Model("assets/bee/bee.obj");
-    Model* plano = new Model("assets/plano/plano.obj");
-    Model* plano1 = new Model("assets/plano/plano1.obj");
+    Model* modelo = new Model("assets/scene/sunflower.obj");
+   /* Model* plano = new Model("assets/plano/plano.obj");
+    Model* plano1 = new Model("assets/sunflower/sunflower.obj");*/
+   
    /* while (true) {
         modelo->Draw(ourShader);
     }
@@ -28,7 +29,7 @@ int main() {
 
     auto dir = new DirectionalLight(
         glm::vec3(-0.2f, -1.0f, -0.3f),
-        glm::vec3(1,0.9,0.6),
+        glm::vec3(1,1,1),
         glm::vec3(0.8f),
         glm::vec3(1.0f)
     );
@@ -37,7 +38,7 @@ int main() {
     auto point = new PointLight(
         glm::vec3(2.f, 1.4f, 3.0f),
         glm::vec3(0.05f),
-        glm::vec3(1.0f, 0.2f, 1.0f),
+        glm::vec3(1.0f, 0.7f, 1.0f),
         glm::vec3(1.0f),
        1.f, 0.14f, 0.07f
     );
@@ -45,7 +46,7 @@ int main() {
     auto point2 = new PointLight(
         glm::vec3(-2.f, 0.7f, -2.0f),
         glm::vec3(0.05f),
-        glm::vec3(0.0f, 0.7f, 1.0f),
+        glm::vec3(0.80f, 0.7f, 1.0f),
         glm::vec3(1.0f),
         1.f, 0.14f, 0.07f
     );
@@ -56,8 +57,8 @@ int main() {
  
     //Cube* cube = new Cube(&ourShader, &texture1, &texture2);
     Renderer::addRenderable(modelo);
-    Renderer::addRenderable(plano);
-    Renderer::addRenderable(plano1);
+   /* Renderer::addRenderable(plano);
+    Renderer::addRenderable(plano1);*/
     // Loop de renderizado
 	Renderer::RenderLoop();
 	Renderer::Release();

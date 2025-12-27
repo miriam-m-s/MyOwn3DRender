@@ -100,8 +100,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
           float rim=step(0.6,fresnel);
           
           vec3 rimColor = vec3(1.0, 1.0, 1.0); // puedes cambiarlo
-      // +(rimColor * rim * 0.8)
-        return color;
+      // 
+        return color +(rimColor * rim * 0.8);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
@@ -162,7 +162,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     if(projCoords.z > 1.0)
         shadow = 0.0;
 
-    return step(0.9,shadow)*0.5;
+    return smoothstep(0.7,0.9,shadow)*0.5;
 }
 void main()
 {
