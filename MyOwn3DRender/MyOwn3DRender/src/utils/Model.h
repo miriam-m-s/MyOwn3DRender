@@ -10,15 +10,24 @@ using namespace std;
 class aiMesh;
 class aiScene;
 class aiMaterial;
+class Shader;
 class aiNode;
 class Model
 {
 public:
-    Model(std::string path)
+    Model(std::string path):shader_(nullptr)
     {
         loadModel(path);
     }
+    Model(std::string path,Shader* shader) :shader_(shader)
+    {
+        loadModel(path);
+    }
+    ~Model();
     void Draw(Shader& shader);
+    void Draw();
+    Shader* getShader();
+
 private:
     // model data
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
@@ -32,4 +41,5 @@ private:
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,
         string typeName);
     unsigned int TextureFromFile(const char* path, const string& directory, bool gamma=true);
+    Shader* shader_;
 };

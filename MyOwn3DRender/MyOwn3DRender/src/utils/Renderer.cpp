@@ -241,29 +241,31 @@ void Renderer::loopPrivate()
 
      
         for (auto& rObjects : renderInstance->renderObjects) {
-    
-            renderInstance->ourShader->use();
+            
+            Shader* sh = rObjects->getShader();
+            if (!sh)sh = renderInstance->ourShader;
+            sh->use();
 
             // Luz direccional
             if (renderInstance->dirLight)
-                renderInstance->dirLight->applyToShader(*renderInstance->ourShader);
+                renderInstance->dirLight->applyToShader(*sh);
        
             // Luces puntuales
-            renderInstance->ourShader->setInt("nPointLights", renderInstance->pointLights.size());
+            sh->setInt("nPointLights", renderInstance->pointLights.size());
            
             for (int i = 0; i < renderInstance->pointLights.size(); ++i)
                 renderInstance->pointLights[i]->applyToShader(*renderInstance->ourShader, i);
 
             // Posición del observador
-            renderInstance->ourShader->setVec3("viewPos", renderInstance->cam->getPosition());
-            renderInstance->ourShader->setMat4("view", renderInstance->view);
-            renderInstance->ourShader->setMat4("projection", renderInstance->projection);
-            renderInstance->ourShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+            sh->setVec3("viewPos", renderInstance->cam->getPosition());
+            sh->setMat4("view", renderInstance->view);
+            sh->setMat4("projection", renderInstance->projection);
+            sh->setMat4("lightSpaceMatrix", lightSpaceMatrix);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, renderInstance->depthMap);
        
-            renderInstance->ourShader->setInt("shadowMap", 1);
-            rObjects->Draw(*renderInstance->ourShader);
+            sh->setInt("shadowMap", 1);
+            rObjects->Draw(*sh);
             
         }
         glfwSwapBuffers(window);

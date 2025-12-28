@@ -11,11 +11,30 @@
 
 
 
+Model::~Model()
+{
+    if (shader_) {
+        shader_ = nullptr;
+        delete shader_;
+    }
+}
+
 void Model::Draw(Shader& shader)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
 		meshes[i].Draw(shader);
 
+}
+
+void Model::Draw()
+{
+    for (unsigned int i = 0; i < meshes.size(); i++)
+        meshes[i].Draw(*shader_);
+}
+
+Shader* Model::getShader()
+{
+    return shader_;
 }
 
 void Model::loadModel(string path)
@@ -69,6 +88,16 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             vector.z = mesh->mNormals[i].z;
             vertex.Normal = vector;
         }
+
+        if (mesh->HasVertexColors(0)) {
+            vertex.color = glm::vec4(
+                mesh->mColors[0][i].r,
+                mesh->mColors[0][i].g,
+                mesh->mColors[0][i].b,
+                mesh->mColors[0][i].a
+            );
+        }
+
         // texture coordinates
         if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
         {
