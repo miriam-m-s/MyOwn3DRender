@@ -31,6 +31,7 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoord;
 in vec4 FragPosLightSpace;
+in vec4 vertexColor;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -101,7 +102,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
           
           vec3 rimColor = vec3(1.0, 1.0, 1.0); // puedes cambiarlo
       // 
-        return( color)*light.specular.x;
+        return( color +(rimColor * rim * 0.8))*light.specular.x;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
@@ -180,4 +181,6 @@ void main()
     float shadow = ShadowCalculation(FragPosLightSpace); 
    
    FragColor = vec4(diffuseColor*(1-shadow)*result, 1.0);
+  
+
 }

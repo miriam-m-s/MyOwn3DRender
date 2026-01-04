@@ -19,18 +19,23 @@ public:
     {
         loadModel(path);
     }
-    Model(std::string path,Shader* shader) :shader_(shader)
+    Model(std::string path,Shader* shader, std::vector<Texture> textures = {}) :shader_(shader)
     {
+        for (int i = 0; i < textures.size(); i++) {
+            textures_added.push_back(textures[i]);
+        }
         loadModel(path);
     }
     ~Model();
     void Draw(Shader& shader);
     void Draw();
+    void addTexture(Texture& texture);
     Shader* getShader();
 
 private:
     // model data
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
+    vector<Texture> textures_added;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<Mesh>    meshes;
     string directory;
     bool gammaCorrection;

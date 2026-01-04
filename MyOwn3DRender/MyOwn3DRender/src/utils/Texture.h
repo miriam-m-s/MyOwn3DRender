@@ -13,6 +13,7 @@ public:
     bool flipVertically;
     std::string path;
     std::string type;
+ 
     Texture(const std::string& path, GLenum format = GL_RGB, bool flipVertically = true);
     Texture();
    

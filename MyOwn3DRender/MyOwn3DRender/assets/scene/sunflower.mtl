@@ -1,7 +1,7 @@
 # Blender 4.3.2 MTL File: 'untitled.blend'
 # www.blender.org
 
-newmtl Material.001
+newmtl Material.003
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
@@ -11,37 +11,7 @@ d 1.000000
 illum 2
 map_Kd sunflo_diffuse.png
 
-newmtl Material.004
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd bee_diffuse.png
-
-newmtl Material.005
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd sky.png
-
-newmtl Material.006
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd cesped_diffuse.png
-
-newmtl Material.007
+newmtl Material.015
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
@@ -51,7 +21,7 @@ d 1.000000
 illum 2
 map_Kd sunflo_diffuse.png
 
-newmtl Material.008
+newmtl Material.016
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
@@ -59,4 +29,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd cesped_diffuse.png
+map_Kd sunflo_diffuse.png

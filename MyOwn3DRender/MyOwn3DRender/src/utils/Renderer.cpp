@@ -257,6 +257,7 @@ void Renderer::loopPrivate()
                 renderInstance->pointLights[i]->applyToShader(*renderInstance->ourShader, i);
 
             // Posición del observador
+            sh->setFloat("time", glfwGetTime());
             sh->setVec3("viewPos", renderInstance->cam->getPosition());
             sh->setMat4("view", renderInstance->view);
             sh->setMat4("projection", renderInstance->projection);

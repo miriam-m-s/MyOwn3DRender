@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "Texture.h"
 #include"Model.h"
 #include "Shader.h"
 #include "Renderable.h"
@@ -15,21 +14,27 @@ int main() {
 		return 1;
 	}
     // unsigned int shaderProgram = createShaderProgram();
-    Shader ourShader("Shaders/ModelVertex.vs", "Shaders/ModelFragment.fs");
-
-
+    
+    Shader ourShader("Shaders/bee.vs", "Shaders/bee.fs");
+    Shader sunflower("Shaders/sunflower.vs", "Shaders/sunflower.fs");
+    Shader unlit("Shaders/unlit.vs", "Shaders/unlit.fs");
+    Shader grassSh("Shaders/grass.vs", "Shaders/grass.fs");
+ 
+    Texture* textureNoise = new Texture("assets/textures/noise.png", GL_RGBA, false);
+    textureNoise->type = "noiseTex";
+    Texture* textureMask = new Texture("assets/scene/GrassAlpha.png", GL_RGBA, false);
+    textureMask->type = "mask";
+    Model* modelo = new Model("assets/bee/bee.obj", &ourShader);
+    Model* ground = new Model("assets/scene/ground.obj");
+    Model* sky = new Model("assets/scene/sky.obj", &unlit);
+    Model* grass = new Model("assets/scene/grass.obj", &grassSh, { *textureNoise,*textureMask });
+    
+    Model* sunModel = new Model("assets/scene/sunflower.obj", &sunflower, { *textureNoise });
    
-    Model* modelo = new Model("assets/scene/sunflower.obj");
-   /* Model* plano = new Model("assets/plano/plano.obj");
-    Model* plano1 = new Model("assets/sunflower/sunflower.obj");*/
-   
-   /* while (true) {
-        modelo->Draw(ourShader);
-    }
-    Texture texture1("assets/textures/container.jpg");*/
+
 
     auto dir = new DirectionalLight(
-        glm::vec3(-0.2f, -1.0f, -0.3f),
+        glm::vec3(-0.1f, -1.0f, -0.6f),
         glm::vec3(1.1,1.05,1),
         glm::vec3(0.8f),
         glm::vec3(1.0f)
@@ -37,31 +42,15 @@ int main() {
    Renderer::Instance()->setDirectionalLight(dir);
    Renderer::Instance()->getCamera()->setPosition({ -3,6,16 });
 
- //auto point = new PointLight(
- //       glm::vec3(2.f, 1.4f, 3.0f),
- //       glm::vec3(0.05f),
- //       glm::vec3(1.0f, 0.7f, 1.0f),
- //       glm::vec3(1.0f),
- //      1.f, 0.14f, 0.07f
- //   );
- //   Renderer::Instance()->addPointLight(point);
- //   auto point2 = new PointLight(
- //       glm::vec3(-2.f, 0.7f, -2.0f),
- //       glm::vec3(0.05f),
- //       glm::vec3(0.80f, 0.7f, 1.0f),
- //       glm::vec3(1.0f),
- //       1.f, 0.14f, 0.07f
- //   );
- //   Renderer::Instance()->addPointLight(point2);
 
-    //Texture texture2("assets/textures/ponch.png", GL_RGBA);
+   Renderer::addRenderable(modelo); 
+   Renderer::addRenderable(sunModel);
+   Renderer::addRenderable(sky); 
+   Renderer::addRenderable(grass);
+   Renderer::addRenderable(ground);
 
- 
-    //Cube* cube = new Cube(&ourShader, &texture1, &texture2);
-    Renderer::addRenderable(modelo);
-   /* Renderer::addRenderable(plano);
-    Renderer::addRenderable(plano1);*/
-    // Loop de renderizado
 	Renderer::RenderLoop();
 	Renderer::Release();
+    delete textureNoise;
+    delete textureMask;
 }

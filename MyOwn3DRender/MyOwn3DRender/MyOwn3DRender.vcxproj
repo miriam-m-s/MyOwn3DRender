@@ -177,10 +177,18 @@
     <ClInclude Include="src\utils\Texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\bee.fs" />
+    <None Include="Shaders\bee.vs" />
+    <None Include="Shaders\grass.fs" />
+    <None Include="Shaders\grass.vs" />
     <None Include="Shaders\ModelFragment.fs" />
     <None Include="Shaders\ModelVertex.vs" />
     <None Include="Shaders\ShadowDepth.fs" />
     <None Include="Shaders\ShadowDepth.vs" />
+    <None Include="Shaders\sunflower.fs" />
+    <None Include="Shaders\sunflower.vs" />
+    <None Include="Shaders\unlit.fs" />
+    <None Include="Shaders\unlit.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

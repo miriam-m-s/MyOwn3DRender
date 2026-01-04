@@ -31,6 +31,7 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoord;
 in vec4 FragPosLightSpace;
+in vec4 vertexColor;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -101,7 +102,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
           
           vec3 rimColor = vec3(1.0, 1.0, 1.0); // puedes cambiarlo
       // 
-        return( color)*light.specular.x;
+        return( color +(rimColor * rim * 0.8))*light.specular.x;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
@@ -162,7 +163,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     if(projCoords.z > 1.0)
         shadow = 0.0;
 
-    return smoothstep(0.7,0.9,shadow)*0.5;
+    return smoothstep(0,1,shadow);
 }
 void main()
 {
@@ -178,6 +179,10 @@ void main()
 
     vec3 diffuseColor = texture(material.texture_diffuse, TexCoord).rgb;
     float shadow = ShadowCalculation(FragPosLightSpace); 
-   
-   FragColor = vec4(diffuseColor*(1-shadow)*result, 1.0);
+    vec3 shadowColor=vec3(0.8,0.77,0.8)*shadow*diffuseColor;
+    vec3 color = mix(diffuseColor * result, shadowColor, shadow);
+    
+    FragColor = vec4(color, 1.0);
+  
+
 }

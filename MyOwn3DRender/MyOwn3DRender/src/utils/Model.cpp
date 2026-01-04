@@ -32,6 +32,13 @@ void Model::Draw()
         meshes[i].Draw(*shader_);
 }
 
+void Model::addTexture(Texture& texture)
+{
+    
+     textures_added.push_back(texture);
+    
+}
+
 Shader* Model::getShader()
 {
     return shader_;
@@ -143,6 +150,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             aiTextureType_SPECULAR, "texture_specular");
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
         
+    }
+    for (int i = 0; i < textures_added.size(); i++) {
+        textures.push_back(textures_added[i]);
     }
 
     return Mesh(vertices, indices, textures);
