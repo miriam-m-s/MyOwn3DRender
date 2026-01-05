@@ -20,16 +20,16 @@ uniform float time;
 
 void main()
 {
-    // Posición original
+   
     vec3 pos = aPos;
 
-    // Máscara desde vertex color (rojo)
+   
     float mask = aColor.r;
 
-    // Movimiento arriba/abajo
+
     float wingOffset = sin(time * 18.0) * 0.2;
 
-    // Aplicar solo donde la máscara esté activa
+
     pos.y += wingOffset * mask;
      pos.y += sin(time * 3.0) * 0.3;
      FragPos = vec3(model * vec4(pos, 1.0));

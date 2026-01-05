@@ -82,6 +82,7 @@ private:
 	unsigned int SHADOW_HEIGHT = 2048*2;
 
 	Shader* depthShader;
+	Shader* outlineShader ;
 	static constexpr int LOGICAL_WIDTH = 800;
 	static constexpr int LOGICAL_HEIGHT = 600;
 

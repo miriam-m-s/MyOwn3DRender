@@ -179,8 +179,10 @@ void main()
 
     vec3 diffuseColor = texture(material.texture_diffuse, TexCoord).rgb;
     float shadow = ShadowCalculation(FragPosLightSpace); 
-   
-   FragColor = vec4(diffuseColor*(1-shadow)*result, 1.0);
+       vec3 shadowColor=dirLight.ambient*0.5*shadow*diffuseColor;
+       vec3 color = mix(diffuseColor * result, shadowColor, shadow);
+       
+       FragColor = vec4(color, 1.0);
   
 
 }

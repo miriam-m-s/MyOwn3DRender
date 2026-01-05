@@ -65,8 +65,8 @@ float ToonQuantize2(float v,float dark)
     float t3 = step(0.90, v);
 
     return
-        0.3 * (1.0 - t1) +      // zona oscura
-        0.5 * (t1 - t2) +       // tono sombra
+        0.0 * (1.0 - t1) +      // zona oscura
+        0.2 * (t1 - t2) +       // tono sombra
         0.7 * (t2 - t3) +       // tono medio
         1.00 * t3;               // luz fuerte
 }
@@ -95,7 +95,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
             light.ambient *
             light.diffuse * toon;
         
-        // ---- Rim Light Fresnel ----
+        //Rim Light Fresnel 
           float fresnel = 1.0 - max(dot(normal, viewDir), 0.0);
           fresnel*=diff;
           float rim=step(0.6,fresnel);
@@ -163,7 +163,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     if(projCoords.z > 1.0)
         shadow = 0.0;
 
-    return smoothstep(0,1,shadow);
+    return smoothstep(0.5,1,shadow);
 }
 void main()
 {
@@ -179,7 +179,7 @@ void main()
 
     vec3 diffuseColor = texture(material.texture_diffuse, TexCoord).rgb;
     float shadow = ShadowCalculation(FragPosLightSpace); 
-    vec3 shadowColor=vec3(0.8,0.77,0.8)*shadow*diffuseColor;
+    vec3 shadowColor=dirLight.ambient*0.6*shadow*diffuseColor;
     vec3 color = mix(diffuseColor * result, shadowColor, shadow);
     
     FragColor = vec4(color, 1.0);

@@ -94,5 +94,7 @@
     <None Include="Shaders\unlit.vs" />
     <None Include="Shaders\grass.fs" />
     <None Include="Shaders\grass.vs" />
+    <None Include="Shaders\outline.fs" />
+    <None Include="Shaders\outline.vs" />
   </ItemGroup>
 </Project>

@@ -183,6 +183,8 @@
     <None Include="Shaders\grass.vs" />
     <None Include="Shaders\ModelFragment.fs" />
     <None Include="Shaders\ModelVertex.vs" />
+    <None Include="Shaders\outline.fs" />
+    <None Include="Shaders\outline.vs" />
     <None Include="Shaders\ShadowDepth.fs" />
     <None Include="Shaders\ShadowDepth.vs" />
     <None Include="Shaders\sunflower.fs" />

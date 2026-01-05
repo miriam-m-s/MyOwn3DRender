@@ -3,13 +3,19 @@
 struct Material {
     sampler2D texture_diffuse;
 };
+struct DirLight {
+    vec3 direction;
 
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
 in vec2 TexCoord;
 in vec4 vertexColor;
 
 uniform Material material;
 uniform sampler2D mask;
-
+uniform DirLight dirLight;
 out vec4 FragColor;
 
 void main()
@@ -24,5 +30,5 @@ void main()
 
   
 
-    FragColor = vec4(baseColor, 1.0);
+    FragColor = vec4(baseColor*dirLight.ambient, 1.0);
 }

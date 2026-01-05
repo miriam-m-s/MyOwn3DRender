@@ -131,6 +131,7 @@ bool Renderer::initPrivate(int w, int h, const char* name)
     }
 
     renderInstance->depthShader=new Shader("Shaders/ShadowDepth.vs", "Shaders/ShadowDepth.fs");
+
     glGenFramebuffers(1, &renderInstance->depthMapFBO);
 
 

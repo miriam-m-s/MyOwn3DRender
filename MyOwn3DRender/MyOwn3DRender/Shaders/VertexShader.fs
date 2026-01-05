@@ -1,19 +1,20 @@
-#version 330 core
+ï»¿#version 330 core
+
+// ---------- Salida ----------
 out vec4 FragColor;
 
-in vec2 TexCoord;
-in vec3 Normal;
+// ---------- Entradas ----------
 in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoord;
 
-uniform sampler2D texture1;
-uniform sampler2D texture2;
+// ---------- Estructuras ----------
+struct Material {
+    sampler2D texture_diffuse;
+};
 
-uniform vec3 viewPos;
-
-// ----- Estructuras -----
 struct DirLight {
     vec3 direction;
-
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -21,23 +22,25 @@ struct DirLight {
 
 struct PointLight {
     vec3 position;
-
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
-
     float constant;
     float linear;
     float quadratic;
 };
 
-// ----- Uniforms -----
-#define NR_POINT_LIGHTS 4  // puedes cambiarlo según tus necesidades
+// ---------- Uniforms ----------
+#define NR_POINT_LIGHTS 4
 
+uniform vec3 viewPos;
 uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform Material material;
 
-// ----- Funciones auxiliares -----
+// ---------- Funciones ----------
+
+// Luz direccional
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
@@ -50,58 +53,52 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
 
     // Componentes
-    vec3 ambient = light.ambient;
-    vec3 diffuse = light.diffuse * diff;
+    vec3 ambient  = light.ambient;
+    vec3 diffuse  = light.diffuse * diff;
     vec3 specular = light.specular * spec;
 
-    return (ambient + diffuse + specular);
+    return ambient + diffuse + specular;
 }
 
+// Luz puntual
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
 
-    // Difusa
     float diff = max(dot(normal, lightDir), 0.0);
 
-    // Especular
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
 
-    // Atenuación
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance +
-                               light.quadratic * (distance * distance));
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
 
-    // Componentes
-    vec3 ambient = light.ambient;
-    vec3 diffuse = light.diffuse * diff;
-    vec3 specular = light.specular * spec;
+    vec3 ambient  = light.ambient  * attenuation;
+    vec3 diffuse  = light.diffuse  * diff * attenuation;
+    vec3 specular = light.specular * spec * attenuation;
 
-    ambient *= attenuation;
-    diffuse *= attenuation;
-    specular *= attenuation;
-
-    return (ambient + diffuse + specular);
+    return ambient + diffuse + specular;
 }
 
-// ----- Función principal -----
+// ---------- Main ----------
 void main()
 {
+    // Normal y vector hacia la cÃ¡mara
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
-    // Comenzamos con la luz direccional
-    vec3 result = CalcDirLight(dirLight, norm, viewDir);
+    // Luz direccional
+    vec3 lighting = CalcDirLight(dirLight, norm, viewDir);
 
-    // Sumamos todas las luces puntuales
+    // Luces puntuales
     for (int i = 0; i < NR_POINT_LIGHTS; i++)
-        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+        lighting += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
 
-    // Mezcla de texturas
-    vec4 texColor = mix(texture(texture1, TexCoord),
-                        texture(texture2, TexCoord),
-                        0.2);
+    // Color de la textura
+    vec3 diffuseColor = texture(material.texture_diffuse, TexCoord).rgb;
 
-    FragColor = vec4(result, 1.0) * texColor;
+    // Color final
+    vec3 finalColor = lighting * diffuseColor;
+
+    FragColor = vec4(lighting, 1.0);
 }
